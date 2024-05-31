@@ -33,7 +33,7 @@ To run the notebooks and reproduce the results, follow these steps:
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/yourusername/chest-xray-detection.git
+   git clone https://github.com/nirtuttnauer/chest-xray-detection.git
    cd chest-xray-detection
    ```
 
