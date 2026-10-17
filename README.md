@@ -1,96 +1,85 @@
-# Chest X-Ray Pneumonia and Covid-19 Detection
+# Chest X-Ray Classification Experiments
 
-This repository contains projects focused on detecting pneumonia and Covid-19 using chest X-ray images. The projects utilize deep learning techniques to classify images and detect anomalies effectively.
+Exploratory deep-learning notebooks for chest X-ray classification and anomaly
+visualization. The repository name refers to Covid-19, but the checked-in code
+uses `NORMAL` / `PNEUMONIA` labels and, for multiclass experiments,
+`NORMAL` / `BACTERIAL` / `VIRAL`. These labels do not establish a Covid-19 detector.
+This is research/educational code, not a validated diagnostic tool.
 
-## Table of Contents
+## Repository contents
 
-- [Project Overview](#project-overview)
-- [Dataset](#dataset)
-- [Installation](#installation)
-- [Usage](#usage)
-- [Methodology](#methodology)
-- [Results](#results)
-- [Contributing](#contributing)
-- [License](#license)
+- `train.ipynb`: binary CNN, VGG16 transfer-learning and autoencoder experiments.
+- `test.ipynb`: saved-model evaluation, prediction plots, embeddings, KNN and
+  anomaly visualizations.
+- `Deep Learning Covid Detector Report.docx`: accompanying project report.
 
-## Project Overview
+Datasets, trained models and a dependency lockfile are not included.
 
-The main goal of these projects is to develop machine learning models that can accurately detect pneumonia and Covid-19 from chest X-ray images. The models are trained on datasets of pediatric chest X-ray images and are evaluated for their diagnostic accuracy.
+## Local setup
 
-## Dataset
+```bash
+git clone https://github.com/nirtuttnauer/Covid-Detector-in-Chest-x-ray.git
+cd Covid-Detector-in-Chest-x-ray
+python3 -m venv .venv
+source .venv/bin/activate
+python -m pip install jupyter tensorflow numpy matplotlib scikit-learn tqdm pillow h5py
+python -m jupyter notebook
+```
 
-The datasets used in these projects contain X-ray images categorized into pneumonia, normal, and Covid-19 cases, organized in `train`, `test`, and `val` folders. The datasets are sourced from reputable medical centers and are publicly available for research purposes.
+On Windows, activate with `.venv\Scripts\activate` instead.
+The package list reflects notebook imports, not a tested or pinned environment.
+The notebooks use legacy TensorFlow/Keras APIs (including
+`tensorflow.keras.optimizers.legacy.Adam` and private `keras.src` imports), so
+current package versions may require compatibility adjustments. Optional model
+plotting also requires `pydot` and a Graphviz installation.
 
-- **Pneumonia Dataset:**
-  - **Source:** [Kaggle Dataset](https://www.kaggle.com/datasets/paultimothymooney/chest-xray-pneumonia)
-  - **Additional Data:** [Mendeley Data](https://data.mendeley.com/datasets/rscbjbr9sj/2)
-- **Covid-19 Dataset:**
-  - **Source:** [Cell Full Text](https://www.cell.com/cell/fulltext/S0092-8674(18)30154-5)
+## Data and model preparation
 
-## Installation
+Review cells before executing them; these are experiment notebooks, not a
+turnkey pipeline. In particular:
 
-To run the notebooks and reproduce the results, follow these steps:
+1. Obtain a dataset with the class directories expected by the experiment.
+   The binary paths in `train.ipynb` are:
 
-1. Clone the repository:
-   ```bash
-   git clone https://github.com/nirtuttnauer/chest-xray-detection.git
-   cd chest-xray-detection
+   ```text
+   dataset/chest_xray/
+     train/
+       NORMAL/
+       PNEUMONIA/
+     test/
+       NORMAL/
+       PNEUMONIA/
    ```
 
-2. Create a virtual environment and install the required packages:
-   ```bash
-   python3 -m venv env
-   source env/bin/activate
-   pip install -r requirements.txt
-   ```
+2. The extraction cell expects `dataset.zip` in the working directory. Run it
+   only against a trusted archive and a disposable copy of the data. It moves
+   images and recursively deletes directories. Some destinations use
+   `val/NORMAL` for pneumonia images before deleting `val`; review and correct
+   those paths before running. Multiclass cells additionally reference a nested
+   `dataset/chest_xray/chest_xray/` tree and split pneumonia filenames containing
+   `bacteria` or `virus` into separate directories.
+3. Create output directories such as `models/1`, `models/2` and `models/4` before
+   saving artifacts. Check each save/load filename: training and evaluation
+   cells do not consistently use the same names or image dimensions.
+4. `test.ipynb` contains Google Drive mounting and `/content/` paths. For local
+   execution, skip the Drive-specific cell and replace its paths with your local
+   dataset location. Supply the matching trained models before evaluation.
+5. Run only the cells for the experiment you intend to reproduce. Training may
+   be resource-intensive, and VGG16 with ImageNet weights may download weights.
 
-3. Download the datasets and place them in the appropriate directory:
-   ```bash
-   mkdir data
-   # Move the downloaded datasets into the data directory
-   ```
+## Evaluation limitations
 
-## Usage
+Several experiments use the same test directory for validation during training
+and final evaluation. Those scores are not an independent held-out estimate.
+Multiclass prediction reports also need an unshuffled test generator so that
+predictions align with `generator.classes`. Review these issues before drawing
+conclusions from saved outputs; this README does not claim reproduced accuracy.
 
-To run the analysis, open the Jupyter notebooks and execute the cells in order:
+History loading uses NumPy's `allow_pickle=True`; load only trusted history
+artifacts. No automated test suite or reproducible end-to-end environment is
+currently included.
 
-1. `train.ipynb`: This notebook contains the training process for the pneumonia and Covid-19 detection models.
-2. `test.ipynb`: This notebook contains the testing and evaluation process for the trained models.
+## Contributing and licensing
 
-## Methodology
-
-### Pneumonia Detection
-
-1. **Data Preprocessing:** Quality control screening, image resizing, and normalization.
-2. **Model Training:** Using convolutional neural networks (CNN) to train the model on the X-ray images.
-3. **Evaluation:** Assessing the model's performance using accuracy, precision, recall, and F1-score metrics.
-
-### Covid-19 Detection
-
-1. **Data Splitting:** Dividing the dataset into training, validation, and test sets.
-2. **Data Augmentation:** Applying techniques such as rotations, horizontal flipping, and zooming to improve generalization.
-3. **Model Architecture:** Implementing binary and multiclass classification models using CNNs and transfer learning with VGG16.
-4. **Anomaly Detection:** Utilizing autoencoders for unsupervised learning to detect anomalies in chest X-ray images.
-5. **Embedding and KNN:** Extracting embeddings from the multi-class model and using k-Nearest Neighbors for classification.
-
-## Results
-
-### Pneumonia Detection
-
-The trained model achieves a high accuracy in detecting pneumonia from chest X-ray images. Detailed results and visualizations can be found in the `test.ipynb` notebook.
-
-### Covid-19 Detection
-
-The models for Covid-19 detection showed significant performance, with binary classification achieving over 89% accuracy and multi-class classification reaching 82% accuracy. Anomaly detection and KNN classification further enhanced the robustness of the system.
-
-## Contributing
-
-Contributions are welcome! Please fork the repository and submit a pull request for any improvements or bug fixes.
-
-## License
-
-This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for more details.
-
----
-
-Let me know if you need any additional sections or modifications to this README.
+Focused fixes and reproducibility improvements are welcome via pull requests.
+No license file is currently included; do not assume an MIT license grant.
